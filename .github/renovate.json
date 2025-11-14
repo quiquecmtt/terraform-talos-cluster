@@ -3,8 +3,7 @@
   "extends": [
     // Changed from "config:base" to the recommended modern standard.
     "config:recommended",
-    "group:allNonMajor",
-    "helpers:pinGitHubActionDigests"
+    "group:allNonMajor"
   ],
   "packageRules": [
     {
