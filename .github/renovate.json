@@ -1,0 +1,55 @@
+{
+  "$schema": "https://docs.renovatebot.com/renovate-schema.json",
+  "extends": [
+    // Changed from "config:base" to the recommended modern standard.
+    "config:recommended",
+    "group:allNonMajor",
+    "helpers:pinGitHubActionDigests"
+  ],
+  "packageRules": [
+    {
+      "description": "Group and auto-merge non-major GitHub Actions updates",
+      "matchManagers": [
+        "github-actions"
+      ],
+      "groupName": "GitHub Actions dependencies",
+      "automerge": true,
+      "automergeType": "pr",
+      // This combined pattern replaces matchPackagePatterns and excludePackagePatterns.
+      // It ensures all packages are matched, except for those specifically excluded from auto-merging (like v4 majors).
+      "matchPackageNames": [
+        "*",
+        "!/^actions/.+@v4/"
+      ],
+      "allowedVersions": "!/^v4\\./"
+    },
+    {
+      "description": "Terraform Provider Updates",
+      "matchManagers": [
+        "terraform"
+      ],
+      // This single matchPackageNames targets all Terraform registry providers.
+      "matchPackageNames": [
+        "/^registry\\.terraform\\.io/.+/"
+      ],
+      "groupName": "Terraform Provider Updates",
+      // Defines major updates (manual review/no automerge)
+      "major": {
+        "automerge": false,
+        "labels": [
+          "renovate/major"
+        ]
+      },
+      // Defines minor updates (automerge)
+      "minor": {
+        "automerge": true,
+        "automergeType": "pr"
+      },
+      // Defines patch updates (automerge)
+      "patch": {
+        "automerge": true,
+        "automergeType": "pr"
+      }
+    }
+  ]
+}
