@@ -56,7 +56,7 @@ data "talos_machine_configuration" "this" {
     }) :
     # Worker
     yamlencode({
-
+      machine = {}
     })
   ]
 }
