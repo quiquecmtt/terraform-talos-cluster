@@ -67,3 +67,18 @@ variable "disable_kube_proxy" {
   sensitive   = false
   default     = false
 }
+
+variable "create_kubeconfig_file" {
+  description = "Whether you want to create a kubeconfig file locally (it's still available as tf output)"
+  type        = bool
+  sensitive   = false
+  default     = false
+}
+
+variable "create_talosconfig_file" {
+  description = "Whether you want to create a talosconfig file locally (it's still available as tf output)"
+  type        = bool
+  sensitive   = false
+  default     = false
+}
+
