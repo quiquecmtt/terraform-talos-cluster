@@ -104,7 +104,6 @@ resource "talos_cluster_kubeconfig" "this" {
 }
 
 resource "local_file" "talosconfig" {
-  count = var.create_talosconfig_file ? 1 : 0
   content = yamlencode({
     context = var.cluster_name
     contexts = {
@@ -117,10 +116,16 @@ resource "local_file" "talosconfig" {
     }
   })
   filename = "./${var.cluster_name}.talosconfig"
+  lifecycle {
+    enabled = var.create_talosconfig_file
+  }
 }
 
 resource "local_file" "kubeconfig" {
   count    = var.create_kubeconfig_file ? 1 : 0
   content  = resource.talos_cluster_kubeconfig.this.kubeconfig_raw
   filename = "./${var.cluster_name}.kubeconfig"
+  lifecycle {
+    enabled = var.create_kubeconfig_file
+  }
 }
