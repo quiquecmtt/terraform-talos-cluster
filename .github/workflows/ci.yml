@@ -22,7 +22,7 @@ jobs:
         uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6
 
       - name: Setup OpenTofu
-        uses: opentofu/setup-opentofu@592200bd325f72c94421b5b051e7e0e1107d2d82 # v1
+        uses: opentofu/setup-opentofu@000eeb8522f0572907c393e8151076c205fdba1b # v1
 
       - name: OpenTofu Format Check
         run: tofu fmt -check -recursive
