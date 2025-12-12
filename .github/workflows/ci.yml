@@ -19,10 +19,10 @@ jobs:
       )
     steps:
       - name: Checkout
-        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4
+        uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4
 
       - name: Setup OpenTofu
-        uses: opentofu/setup-opentofu@592200bd325f72c94421b5b051e7e0e1107d2d82 # v1
+        uses: opentofu/setup-opentofu@000eeb8522f0572907c393e8151076c205fdba1b # v1
 
       - name: OpenTofu Format Check
         run: tofu fmt -check -recursive
