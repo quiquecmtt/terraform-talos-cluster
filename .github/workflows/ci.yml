@@ -1,4 +1,4 @@
-name: Terraform CI
+name: OpenTofu CI
 
 on:
   push:
@@ -8,7 +8,7 @@ on:
 
 jobs:
   lint:
-    name: Terraform Lint & Validate
+    name: OpenTofu Lint & Validate
     runs-on: ubuntu-latest
     if: |
       github.event_name == 'workflow_dispatch' ||
@@ -19,19 +19,19 @@ jobs:
       )
     steps:
       - name: Checkout
-        uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4
 
-      - name: Setup Terraform
-        uses: hashicorp/setup-terraform@b9cd54a3c349d3f38e8881555d616ced269862dd # v3
+      - name: Setup OpenTofu
+        uses: opentofu/setup-opentofu@592200bd325f72c94421b5b051e7e0e1107d2d82 # v1
 
-      - name: Terraform Format Check
-        run: terraform fmt -check -recursive
+      - name: OpenTofu Format Check
+        run: tofu fmt -check -recursive
 
-      - name: Terraform Init
-        run: terraform init -backend=false
+      - name: OpenTofu Init
+        run: tofu init -backend=false
 
-      - name: Terraform Validate
-        run: terraform validate
+      - name: OpenTofu Validate
+        run: tofu validate
 
       - name: Setup TFLint
         uses: terraform-linters/setup-tflint@4cb9feea73331a35b422df102992a03a44a3bb33 # v6
