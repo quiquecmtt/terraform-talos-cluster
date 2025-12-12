@@ -1,8 +1,8 @@
-# Terraform Talos Cluster
+# OpenTofu Talos Cluster
 
-Terraform/OpenTofu module to bootstrap a [Talos Linux](https://www.talos.dev/) Kubernetes cluster from a list of pre-provisioned nodes.
+OpenTofu module to bootstrap a [Talos Linux](https://www.talos.dev/) Kubernetes cluster from a list of pre-provisioned nodes.
 
-![Terraform](https://img.shields.io/badge/terraform-%3E%3D1.11.0-blue)
+![OpenTofu](https://img.shields.io/badge/opentofu-%3E%3D1.11.0-blue)
 ![Talos Provider](https://img.shields.io/badge/talos--provider-0.9.0-purple)
 
 ## Features
@@ -19,7 +19,7 @@ Terraform/OpenTofu module to bootstrap a [Talos Linux](https://www.talos.dev/) K
 
 Before using this module, ensure you have:
 
-- **Terraform/OpenTofu** >= 1.11.0 installed
+- **OpenTofu** >= 1.11.0 installed
 - **Pre-provisioned nodes** with Talos Linux installed
 - **Static IP addresses** assigned to all nodes
 - **Network connectivity** between all cluster nodes
@@ -165,7 +165,7 @@ module "talos_cluster" {
 
 | Name | Version |
 |------|---------|
-| terraform | >= 1.11.0 |
+| opentofu | >= 1.11.0 |
 | local | 2.6.1 |
 | talos | 0.9.0 |
 
@@ -222,6 +222,7 @@ The module waits for the cluster to become healthy before generating outputs. Th
 ### Credential Files
 
 When `create_kubeconfig_file` or `create_talosconfig_file` is enabled, credentials are written to:
+
 - `./<cluster_name>.kubeconfig`
 - `./<cluster_name>.talosconfig`
 
@@ -230,6 +231,7 @@ These files contain sensitive credentials. Ensure they are added to `.gitignore`
 ### VIP Configuration
 
 When `cluster_vip` is specified, the module configures a Virtual IP on control plane nodes using Talos's built-in VIP support. This requires:
+
 - The VIP address to be in the same subnet as the control plane nodes
 - Layer 2 network connectivity between control plane nodes
 
