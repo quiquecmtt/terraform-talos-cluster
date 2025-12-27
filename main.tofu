@@ -18,47 +18,59 @@ data "talos_machine_configuration" "this" {
   machine_type       = each.value.machine_type
   machine_secrets    = talos_machine_secrets.this.machine_secrets
   kubernetes_version = var.kubernetes_version
-  config_patches = [
-    # Common
-    yamlencode({
-      cluster = {
-        allowSchedulingOnControlPlanes = var.scheduling_on_control_planes
-      },
-      machine = {
-        kubelet = {
-          extraArgs = {
-            rotate-server-certificates = var.metrics_server.enabled
+  config_patches = compact(concat(
+    # Common patches
+    [
+      yamlencode({
+        cluster = {
+          allowSchedulingOnControlPlanes = var.scheduling_on_control_planes
+        }
+      }),
+      yamlencode({
+        machine = {
+          kubelet = {
+            extraArgs = {
+              rotate-server-certificates = var.metrics_server.enabled
+            }
           }
         }
-      }
-    }), each.value.machine_type == "controlplane" ?
-    # Control plane
-    yamlencode({
-      cluster = {
-        extraManifests = local.extra_manifests
-        network = {
-          cni = {
-            name = var.disable_cni ? "none" : "flannel"
+      })
+    ],
+    # Control plane specific patches
+    each.value.machine_type == "controlplane" ? [
+      yamlencode({
+        cluster = {
+          extraManifests = local.extra_manifests
+        }
+      }),
+      yamlencode({
+        cluster = {
+          network = {
+            cni = {
+              name = var.disable_cni ? "none" : "flannel"
+            }
           }
         }
-        proxy = {
-          disabled = var.disable_kube_proxy
+      }),
+      yamlencode({
+        cluster = {
+          proxy = {
+            disabled = var.disable_kube_proxy
+          }
         }
-      }
-      machine = {
-        network = {
-          interfaces = var.cluster_vip != null && var.cluster_vip != "" ? [{
-            deviceSelector = { physical = true }
-            vip            = { ip = var.cluster_vip }
-          }] : []
+      }),
+      var.cluster_vip != null && var.cluster_vip != "" ? yamlencode({
+        machine = {
+          network = {
+            interfaces = [{
+              deviceSelector = { physical = true }
+              vip            = { ip = var.cluster_vip }
+            }]
+          }
         }
-      }
-    }) :
-    # Worker
-    yamlencode({
-      machine = {}
-    })
-  ]
+      }) : null
+    ] : [],
+  ))
 }
 
 resource "talos_machine_configuration_apply" "this" {
