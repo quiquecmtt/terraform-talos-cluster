@@ -10,4 +10,6 @@ jobs:
   ci:
     uses: quiquecmtt/reusable-workflows/.github/workflows/opentofu-ci.yml@main
     with:
+      enable_security_scan: true
+      enable_docs: true
       allowed_pr_author: "quiquecmtt"
