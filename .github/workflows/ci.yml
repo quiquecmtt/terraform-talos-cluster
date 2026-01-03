@@ -13,3 +13,5 @@ jobs:
       enable_security_scan: true
       enable_docs: true
       allowed_pr_author: "quiquecmtt"
+    permissions:
+      content: write
