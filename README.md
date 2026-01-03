@@ -243,3 +243,29 @@ When `cluster_vip` is specified, the module configures a Virtual IP on control p
 - `talos_machine_bootstrap` - Bootstraps the first control plane node
 - `talos_cluster_kubeconfig` - Generates Kubernetes credentials
 - `local_file` - Optional local credential files
+
+<!-- BEGIN_TF_DOCS -->
+## Requirements
+
+No requirements.
+
+## Providers
+
+No providers.
+
+## Modules
+
+No modules.
+
+## Resources
+
+No resources.
+
+## Inputs
+
+No inputs.
+
+## Outputs
+
+No outputs.
+<!-- END_TF_DOCS -->
