@@ -14,4 +14,4 @@ jobs:
       enable_docs: true
       allowed_pr_author: "quiquecmtt"
     permissions:
-      content: write
+      contents: write
