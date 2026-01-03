@@ -2,7 +2,6 @@ name: Renovate
 
 on:
   schedule:
-    # Runs at 12:05 PM UTC, every Wednesday
     - cron: "5 12 * * 3"
   workflow_dispatch:
     inputs:
@@ -14,15 +13,8 @@ on:
 
 jobs:
   renovate:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6
-
-      - name: Self-hosted Renovate
-        uses: renovatebot/github-action@8b7941943a108b2cc2150730963164aa8baeab8c # v44.2.2
-        env:
-          LOG_LEVEL: ${{ github.event.inputs.debug == 'true' && 'debug' || 'info' }}
-          RENOVATE_REPOSITORIES: ${{ github.repository }}
-        with:
-          configurationFile: ".github/renovate.json"
-          token: ${{ secrets.RENOVATE_TOKEN }}
+    uses: quiquecmtt/reusable-workflows/.github/workflows/renovate.yml@main
+    with:
+      debug: ${{ inputs.debug || false }}
+    secrets:
+      RENOVATE_TOKEN: ${{ secrets.RENOVATE_TOKEN }}
