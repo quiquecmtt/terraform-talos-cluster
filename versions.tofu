@@ -3,11 +3,11 @@ terraform {
   required_providers {
     local = {
       source  = "hashicorp/local"
-      version = "2.8.0"
+      version = "2.9.0"
     }
     talos = {
       source  = "siderolabs/talos"
-      version = "0.10.1"
+      version = "0.11.0"
     }
   }
 }
