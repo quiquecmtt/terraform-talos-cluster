@@ -309,7 +309,7 @@ No modules.
 
 | Name | Description |
 |------|-------------|
-| <a name="output_kube_client_config"></a> [kube\_client\_config](#output\_kube\_client\_config) | Kubeconfig in HCL format |
+| <a name="output_kube_client_config"></a> [kube\_client\_config](#output\_kube\_client\_config) | Kubernetes client configuration, for configuring the kubernetes and helm providers without parsing the raw kubeconfig YAML. |
 | <a name="output_kube_endpoint"></a> [kube\_endpoint](#output\_kube\_endpoint) | Kubernetes cluster control plane endpoint |
 | <a name="output_kubeconfig"></a> [kubeconfig](#output\_kubeconfig) | Kubeconfig for the Talos cluster |
 | <a name="output_talos_client_config"></a> [talos\_client\_config](#output\_talos\_client\_config) | Talos client configuration in HCL format |
