@@ -22,7 +22,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
-- Documented why the `BEGIN_TF_DOCS` block renders empty: terraform-docs does not scan `.tofu` files, so the hand-maintained tables are the real documentation and not a redundant copy of it
+- **Documentation generation**: source files renamed `.tofu` → `.tf`, so terraform-docs can actually parse them
+  - It added `.tofu` support in v0.20.0 but only for headers and footers; it still cannot extract inputs, outputs or providers from them, so the generated block was empty and the tables were hand-written — and had drifted
+  - The hand-maintained Requirements/Providers/Inputs/Outputs tables are removed; terraform-docs now generates them
+  - The module remains OpenTofu-only (requires >= 1.11.0, uses `lifecycle.enabled`). The extension bought nothing but Terraform ignoring the files instead of erroring on them
 
 ## [0.2.0] - 2025-12-12
 

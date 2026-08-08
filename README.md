@@ -206,64 +206,6 @@ essentially just the CNI.
 Inline manifests travel inside the machine configuration and therefore land in
 OpenTofu state. Keep secrets out of them.
 
-## Requirements
-
-> These tables are maintained by hand. The `BEGIN_TF_DOCS` block below renders
-> empty because terraform-docs does not scan `.tofu` files, so it is not a
-> substitute — see [Notes](#terraform-docs).
-
-| Name | Version |
-|------|---------|
-| opentofu | >= 1.11.0 |
-| local | 2.9.0 |
-| talos | 0.11.0 |
-
-## Providers
-
-| Name | Version |
-|------|---------|
-| [local](https://registry.terraform.io/providers/hashicorp/local/latest) | 2.9.0 |
-| [talos](https://registry.terraform.io/providers/siderolabs/talos/latest) | 0.11.0 |
-
-## Inputs
-
-| Name | Description | Type | Default | Required |
-|------|-------------|------|---------|:--------:|
-| cluster_name | Talos cluster name | `string` | `"talos"` | no |
-| cluster_vip | Talos cluster control plane VIP for high availability | `string` | `null` | no |
-| kubernetes_version | Kubernetes cluster version | `string` | `"v1.35.4"` | no |
-| talos_version | Talos node version | `string` | `"v1.12.11"` | no |
-| talos_nodes | Map of nodes with their configuration | `map(object({ ip_address = string, ip_subnet = number, machine_type = string }))` | n/a | yes |
-| metrics_server | Enable metrics server and certificate rotation | `object({ enabled = optional(bool, false), extra_manifests = optional(list(string), [...]) })` | see below | no |
-| extra_manifests | URLs of manifests applied at bootstrap, fetched by the control plane | `list(string)` | `[]` | no |
-| inline_manifests | Manifests embedded in the machine configuration | `list(object({ name = string, contents = string }))` | `[]` | no |
-| scheduling_on_control_planes | Allow workload scheduling on control plane nodes | `bool` | `false` | no |
-| disable_cni | Disable Talos default CNI (Flannel) | `bool` | `false` | no |
-| disable_kube_proxy | Disable Talos kube-proxy | `bool` | `false` | no |
-| create_kubeconfig_file | Create a kubeconfig file locally | `bool` | `false` | no |
-| create_talosconfig_file | Create a talosconfig file locally | `bool` | `false` | no |
-
-### metrics_server default value
-
-```hcl
-{
-  enabled = false
-  extra_manifests = [
-    "https://raw.githubusercontent.com/alex1989hu/kubelet-serving-cert-approver/main/deploy/standalone-install.yaml",
-    "https://github.com/kubernetes-sigs/metrics-server/releases/latest/download/components.yaml"
-  ]
-}
-```
-
-## Outputs
-
-| Name | Description | Sensitive |
-|------|-------------|:---------:|
-| talos_client_config | Talos client configuration in HCL format | yes |
-| kubeconfig | Kubeconfig for the Talos cluster (raw YAML) | yes |
-| kube_client_config | Kubeconfig in HCL format | yes |
-| kube_endpoint | Kubernetes cluster control plane endpoint URL | no |
-
 ## Notes
 
 ### Health Checks
@@ -294,11 +236,13 @@ They exist for what has to be in place *before* such a controller can run. With 
 
 Choose between them by whether the nodes can reach the content: `extra_manifests` is fetched by the control plane at bootstrap and needs network access from the nodes, while `inline_manifests` travels inside the machine configuration and needs none. Inline content is stored in OpenTofu state, so keep secrets out of it.
 
-### terraform-docs
+### Why `.tf` and not `.tofu`
 
-The `BEGIN_TF_DOCS` block at the end of this file renders empty. terraform-docs does not scan `.tofu` files, and this module uses them throughout, so it finds no inputs, outputs or resources to document.
+This module is OpenTofu-only — it requires >= 1.11.0 and uses `lifecycle.enabled`, which Terraform does not support — but its files are named `.tf`.
 
-The tables above are therefore maintained by hand and must be updated alongside `variables.tofu` and `outputs.tofu`. Until the tooling handles `.tofu`, treat the generated block as decorative.
+That is a concession to tooling. terraform-docs added `.tofu` support in v0.20.0, but [only for headers and footers](https://github.com/terraform-docs/terraform-docs/releases/tag/v0.20.0): it still cannot parse them for inputs, outputs or providers. With `.tofu` files the generated block below came out empty, so the requirement and input tables had to be written by hand — and they drifted, claiming `talos 0.9.0` against an actual `0.11.0`.
+
+The `.tofu` extension buys exactly one thing: Terraform ignores the files rather than erroring on them. That is not worth documentation that silently rots. Requirements, providers, inputs and outputs are now generated from the source instead.
 
 ## Resources Created
 
