@@ -23,8 +23,8 @@ output "kube_client_config" {
     talos_machine_bootstrap.this,
     data.talos_cluster_health.this
   ]
-  description = "Kubeconfig in HCL format"
-  value       = resource.talos_cluster_kubeconfig.this.client_configuration
+  description = "Kubernetes client configuration, for configuring the kubernetes and helm providers without parsing the raw kubeconfig YAML."
+  value       = resource.talos_cluster_kubeconfig.this.kubernetes_client_configuration
   sensitive   = true
 }
 
