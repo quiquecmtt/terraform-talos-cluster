@@ -1,0 +1,24 @@
+# Provider plugins and workspace metadata. Created by `tofu init`, which you
+# need in order to run `tofu validate` locally.
+.terraform/
+
+# Lock files belong to root modules, not to reusable ones. A consumer resolves
+# providers against their own version constraints, so a lock committed here is
+# ignored at best and misleading at worst.
+.terraform.lock.hcl
+
+# State should never exist in a module repo. Ignore it so a stray local apply
+# cannot commit one.
+*.tfstate
+*.tfstate.*
+*.tfplan
+
+# Local variable files, which tend to hold endpoints and credentials.
+*.tfvars
+*.auto.tfvars
+
+# Written by create_kubeconfig_file and create_talosconfig_file. These are live
+# cluster credentials -- the README warns about them, and until now nothing
+# enforced it.
+*.kubeconfig
+*.talosconfig

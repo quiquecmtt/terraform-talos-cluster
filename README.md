@@ -139,8 +139,8 @@ module "talos_cluster" {
   source = "path/to/terraform-talos-cluster"
 
   cluster_name       = "cilium-cluster"
-  kubernetes_version = "v1.33.3"
-  talos_version      = "v1.10.6"
+  kubernetes_version = "v1.35.4"
+  talos_version      = "v1.12.11"
 
   talos_nodes = {
     cp1 = {
@@ -161,57 +161,50 @@ module "talos_cluster" {
 }
 ```
 
-## Requirements
+With `disable_cni = true` the nodes stay `NotReady` until a CNI is installed,
+and nothing that needs to schedule a pod can run until then. There are two
+ways to close that gap.
 
-| Name | Version |
-|------|---------|
-| opentofu | >= 1.11.0 |
-| local | 2.6.1 |
-| talos | 0.9.0 |
+### Bootstrap manifests
 
-## Providers
-
-| Name | Version |
-|------|---------|
-| [local](https://registry.terraform.io/providers/hashicorp/local/latest) | 2.6.1 |
-| [talos](https://registry.terraform.io/providers/siderolabs/talos/latest) | 0.9.0 |
-
-## Inputs
-
-| Name | Description | Type | Default | Required |
-|------|-------------|------|---------|:--------:|
-| cluster_name | Talos cluster name | `string` | `"talos"` | no |
-| cluster_vip | Talos cluster control plane VIP for high availability | `string` | `null` | no |
-| kubernetes_version | Kubernetes cluster version | `string` | `"v1.33.3"` | no |
-| talos_version | Talos node version | `string` | `"v1.10.6"` | no |
-| talos_nodes | Map of nodes with their configuration | `map(object({ ip_address = string, ip_subnet = number, machine_type = string }))` | n/a | yes |
-| metrics_server | Enable metrics server and certificate rotation | `object({ enabled = optional(bool, false), extra_manifests = optional(list(string), [...]) })` | see below | no |
-| scheduling_on_control_planes | Allow workload scheduling on control plane nodes | `bool` | `false` | no |
-| disable_cni | Disable Talos default CNI (Flannel) | `bool` | `false` | no |
-| disable_kube_proxy | Disable Talos kube-proxy | `bool` | `false` | no |
-| create_kubeconfig_file | Create a kubeconfig file locally | `bool` | `false` | no |
-| create_talosconfig_file | Create a talosconfig file locally | `bool` | `false` | no |
-
-### metrics_server default value
+`extra_manifests` takes URLs, which the **control plane** fetches during
+bootstrap — so they must be reachable from the nodes, not from wherever
+OpenTofu runs.
 
 ```hcl
-{
-  enabled = false
+module "talos_cluster" {
+  # ...
+  disable_cni = true
+
   extra_manifests = [
-    "https://raw.githubusercontent.com/alex1989hu/kubelet-serving-cert-approver/main/deploy/standalone-install.yaml",
-    "https://github.com/kubernetes-sigs/metrics-server/releases/latest/download/components.yaml"
+    "https://raw.githubusercontent.com/example/org/main/cni.yaml",
   ]
 }
 ```
 
-## Outputs
+`inline_manifests` embeds the content in the machine configuration instead, so
+no fetch happens at all. That suits air-gapped clusters, and rendered output
+such as `helm template`:
 
-| Name | Description | Sensitive |
-|------|-------------|:---------:|
-| talos_client_config | Talos client configuration in HCL format | yes |
-| kubeconfig | Kubeconfig for the Talos cluster (raw YAML) | yes |
-| kube_client_config | Kubeconfig in HCL format | yes |
-| kube_endpoint | Kubernetes cluster control plane endpoint URL | no |
+```hcl
+module "talos_cluster" {
+  # ...
+  disable_cni = true
+
+  inline_manifests = [{
+    name     = "cilium"
+    contents = data.helm_template.cilium.manifest
+  }]
+}
+```
+
+Both are applied **once, at bootstrap, and are never reconciled afterwards**.
+Anything that should stay reconciled belongs in a GitOps controller. Reserve
+these for what must exist before such a controller can run at all — which is
+essentially just the CNI.
+
+Inline manifests travel inside the machine configuration and therefore land in
+OpenTofu state. Keep secrets out of them.
 
 ## Notes
 
@@ -234,6 +227,22 @@ When `cluster_vip` is specified, the module configures a Virtual IP on control p
 
 - The VIP address to be in the same subnet as the control plane nodes
 - Layer 2 network connectivity between control plane nodes
+
+### Manifests
+
+`extra_manifests` and `inline_manifests` are applied once during bootstrap and are never reconciled afterwards. If a manifest is edited, removed, or drifts in the cluster, nothing here notices or corrects it — that is a GitOps controller's job.
+
+They exist for what has to be in place *before* such a controller can run. With `disable_cni = true` there is no pod network, so a CNI cannot be installed by anything that needs to schedule a pod. That is the case worth using them for; almost everything else is better owned by Flux or Argo.
+
+Choose between them by whether the nodes can reach the content: `extra_manifests` is fetched by the control plane at bootstrap and needs network access from the nodes, while `inline_manifests` travels inside the machine configuration and needs none. Inline content is stored in OpenTofu state, so keep secrets out of it.
+
+### Why `.tf` and not `.tofu`
+
+This module is OpenTofu-only — it requires >= 1.11.0 and uses `lifecycle.enabled`, which Terraform does not support — but its files are named `.tf`.
+
+That is a concession to tooling. terraform-docs added `.tofu` support in v0.20.0, but [only for headers and footers](https://github.com/terraform-docs/terraform-docs/releases/tag/v0.20.0): it still cannot parse them for inputs, outputs or providers. With `.tofu` files the generated block below came out empty, so the requirement and input tables had to be written by hand — and they drifted, claiming `talos 0.9.0` against an actual `0.11.0`.
+
+The `.tofu` extension buys exactly one thing: Terraform ignores the files rather than erroring on them. That is not worth documentation that silently rots. Requirements, providers, inputs and outputs are now generated from the source instead.
 
 ## Resources Created
 

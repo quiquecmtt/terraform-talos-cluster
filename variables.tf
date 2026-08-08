@@ -17,7 +17,7 @@ variable "kubernetes_version" {
   description = "Kubernetes cluster version"
   type        = string
   sensitive   = false
-  default     = "v1.33.3"
+  default     = "v1.35.4"
 }
 
 variable "talos_nodes" {
@@ -51,7 +51,45 @@ variable "talos_version" {
   description = "Talos node version"
   type        = string
   sensitive   = false
-  default     = "v1.10.6"
+  default     = "v1.12.11"
+}
+
+variable "extra_manifests" {
+  description = <<-EOT
+    URLs of additional manifests for Talos to apply during bootstrap, appended
+    to `cluster.extraManifests`.
+
+    Fetched by the control plane at bootstrap, so every URL must be reachable
+    from the nodes themselves -- not from wherever OpenTofu runs. Use
+    `inline_manifests` for anything that is not publicly hosted.
+
+    These are applied once, at bootstrap, and are not reconciled afterwards.
+    Anything that should stay reconciled belongs in a GitOps controller, not
+    here. The exception is what has to exist *before* such a controller can
+    run at all: with `disable_cni = true` there is no pod network, so a CNI
+    cannot be installed by anything that needs to schedule a pod.
+  EOT
+  type        = list(string)
+  sensitive   = false
+  default     = []
+}
+
+variable "inline_manifests" {
+  description = <<-EOT
+    Manifests embedded directly in the machine configuration, as
+    `cluster.inlineManifests`.
+
+    Unlike `extra_manifests` these need no network fetch, which makes them the
+    right choice for air-gapped clusters or for rendered output such as
+    `helm template`. They travel inside the machine config and therefore end
+    up in OpenTofu state -- keep secrets out of them.
+  EOT
+  type = list(object({
+    name     = string
+    contents = string
+  }))
+  sensitive = false
+  default   = []
 }
 
 variable "disable_cni" {

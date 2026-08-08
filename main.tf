@@ -43,6 +43,13 @@ data "talos_machine_configuration" "this" {
           extraManifests = local.extra_manifests
         }
       }),
+      # Omitted entirely when empty rather than emitted as [], so the machine
+      # config stays free of keys nobody set. compact() drops the null.
+      length(var.inline_manifests) > 0 ? yamlencode({
+        cluster = {
+          inlineManifests = var.inline_manifests
+        }
+      }) : null,
       yamlencode({
         cluster = {
           network = {

@@ -7,6 +7,26 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- **Bootstrap manifests**: two inputs for applying manifests during bootstrap, closing the gap left by `disable_cni`
+  - `extra_manifests`: URLs appended to `cluster.extraManifests`, fetched by the control plane, so they must be reachable from the nodes rather than from wherever OpenTofu runs
+  - `inline_manifests`: content embedded in `cluster.inlineManifests`, needing no network fetch — suits air-gapped clusters and rendered `helm template` output
+  - Both apply once and are never reconciled. They are for what must exist before a GitOps controller can run at all, which is essentially just the CNI.
+
+### Changed
+
+- `talos_version` default: `v1.10.6` → `v1.12.11`
+- `kubernetes_version` default: `v1.33.3` → `v1.35.4`, the Talos default for that release
+- README requirement and provider tables corrected — they had drifted to `talos 0.9.0` / `local 2.6.1` against the actual `0.11.0` / `2.9.0`
+
+### Fixed
+
+- **Documentation generation**: source files renamed `.tofu` → `.tf`, so terraform-docs can actually parse them
+  - It added `.tofu` support in v0.20.0 but only for headers and footers; it still cannot extract inputs, outputs or providers from them, so the generated block was empty and the tables were hand-written — and had drifted
+  - The hand-maintained Requirements/Providers/Inputs/Outputs tables are removed; terraform-docs now generates them
+  - The module remains OpenTofu-only (requires >= 1.11.0, uses `lifecycle.enabled`). The extension bought nothing but Terraform ignoring the files instead of erroring on them
+
 ## [0.2.0] - 2025-12-12
 
 ### Added
