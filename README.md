@@ -256,11 +256,18 @@ The `.tofu` extension buys exactly one thing: Terraform ignores the files rather
 <!-- BEGIN_TF_DOCS -->
 ## Requirements
 
-No requirements.
+| Name | Version |
+|------|---------|
+| <a name="requirement_terraform"></a> [terraform](#requirement\_terraform) | >= 1.11.0 |
+| <a name="requirement_local"></a> [local](#requirement\_local) | 2.9.0 |
+| <a name="requirement_talos"></a> [talos](#requirement\_talos) | 0.11.0 |
 
 ## Providers
 
-No providers.
+| Name | Version |
+|------|---------|
+| <a name="provider_local"></a> [local](#provider\_local) | 2.9.0 |
+| <a name="provider_talos"></a> [talos](#provider\_talos) | 0.11.0 |
 
 ## Modules
 
@@ -268,13 +275,42 @@ No modules.
 
 ## Resources
 
-No resources.
+| Name | Type |
+|------|------|
+| [local_file.kubeconfig](https://registry.terraform.io/providers/hashicorp/local/2.9.0/docs/resources/file) | resource |
+| [local_file.talosconfig](https://registry.terraform.io/providers/hashicorp/local/2.9.0/docs/resources/file) | resource |
+| [talos_cluster_kubeconfig.this](https://registry.terraform.io/providers/siderolabs/talos/0.11.0/docs/resources/cluster_kubeconfig) | resource |
+| [talos_machine_bootstrap.this](https://registry.terraform.io/providers/siderolabs/talos/0.11.0/docs/resources/machine_bootstrap) | resource |
+| [talos_machine_configuration_apply.this](https://registry.terraform.io/providers/siderolabs/talos/0.11.0/docs/resources/machine_configuration_apply) | resource |
+| [talos_machine_secrets.this](https://registry.terraform.io/providers/siderolabs/talos/0.11.0/docs/resources/machine_secrets) | resource |
+| [talos_client_configuration.this](https://registry.terraform.io/providers/siderolabs/talos/0.11.0/docs/data-sources/client_configuration) | data source |
+| [talos_cluster_health.this](https://registry.terraform.io/providers/siderolabs/talos/0.11.0/docs/data-sources/cluster_health) | data source |
+| [talos_machine_configuration.this](https://registry.terraform.io/providers/siderolabs/talos/0.11.0/docs/data-sources/machine_configuration) | data source |
 
 ## Inputs
 
-No inputs.
+| Name | Description | Type | Default | Required |
+|------|-------------|------|---------|:--------:|
+| <a name="input_cluster_name"></a> [cluster\_name](#input\_cluster\_name) | Talos cluster name | `string` | `"talos"` | no |
+| <a name="input_cluster_vip"></a> [cluster\_vip](#input\_cluster\_vip) | Talos cluster control plane VIP | `string` | `null` | no |
+| <a name="input_create_kubeconfig_file"></a> [create\_kubeconfig\_file](#input\_create\_kubeconfig\_file) | Whether you want to create a kubeconfig file locally (it's still available as tf output) | `bool` | `false` | no |
+| <a name="input_create_talosconfig_file"></a> [create\_talosconfig\_file](#input\_create\_talosconfig\_file) | Whether you want to create a talosconfig file locally (it's still available as tf output) | `bool` | `false` | no |
+| <a name="input_disable_cni"></a> [disable\_cni](#input\_disable\_cni) | Disable Talos default CNI (Flannel) | `bool` | `false` | no |
+| <a name="input_disable_kube_proxy"></a> [disable\_kube\_proxy](#input\_disable\_kube\_proxy) | Disable Talos kube-proxy | `bool` | `false` | no |
+| <a name="input_extra_manifests"></a> [extra\_manifests](#input\_extra\_manifests) | URLs of additional manifests for Talos to apply during bootstrap, appended<br/>to `cluster.extraManifests`.<br/><br/>Fetched by the control plane at bootstrap, so every URL must be reachable<br/>from the nodes themselves -- not from wherever OpenTofu runs. Use<br/>`inline_manifests` for anything that is not publicly hosted.<br/><br/>These are applied once, at bootstrap, and are not reconciled afterwards.<br/>Anything that should stay reconciled belongs in a GitOps controller, not<br/>here. The exception is what has to exist *before* such a controller can<br/>run at all: with `disable_cni = true` there is no pod network, so a CNI<br/>cannot be installed by anything that needs to schedule a pod. | `list(string)` | `[]` | no |
+| <a name="input_inline_manifests"></a> [inline\_manifests](#input\_inline\_manifests) | Manifests embedded directly in the machine configuration, as<br/>`cluster.inlineManifests`.<br/><br/>Unlike `extra_manifests` these need no network fetch, which makes them the<br/>right choice for air-gapped clusters or for rendered output such as<br/>`helm template`. They travel inside the machine config and therefore end<br/>up in OpenTofu state -- keep secrets out of them. | <pre>list(object({<br/>    name     = string<br/>    contents = string<br/>  }))</pre> | `[]` | no |
+| <a name="input_kubernetes_version"></a> [kubernetes\_version](#input\_kubernetes\_version) | Kubernetes cluster version | `string` | `"v1.35.4"` | no |
+| <a name="input_metrics_server"></a> [metrics\_server](#input\_metrics\_server) | Enable kubernetes certificate rotation | <pre>object({<br/>    enabled = optional(bool, false)<br/>    extra_manifests = optional(list(string), [<br/>      "https://raw.githubusercontent.com/alex1989hu/kubelet-serving-cert-approver/main/deploy/standalone-install.yaml",<br/>      "https://github.com/kubernetes-sigs/metrics-server/releases/latest/download/components.yaml"<br/>    ])<br/>  })</pre> | n/a | yes |
+| <a name="input_scheduling_on_control_planes"></a> [scheduling\_on\_control\_planes](#input\_scheduling\_on\_control\_planes) | Allow workload scheduling on control plane nodes | `bool` | `false` | no |
+| <a name="input_talos_nodes"></a> [talos\_nodes](#input\_talos\_nodes) | n/a | <pre>map(object({<br/>    ip_address   = string<br/>    ip_subnet    = number<br/>    machine_type = string<br/>  }))</pre> | n/a | yes |
+| <a name="input_talos_version"></a> [talos\_version](#input\_talos\_version) | Talos node version | `string` | `"v1.12.11"` | no |
 
 ## Outputs
 
-No outputs.
+| Name | Description |
+|------|-------------|
+| <a name="output_kube_client_config"></a> [kube\_client\_config](#output\_kube\_client\_config) | Kubeconfig in HCL format |
+| <a name="output_kube_endpoint"></a> [kube\_endpoint](#output\_kube\_endpoint) | Kubernetes cluster control plane endpoint |
+| <a name="output_kubeconfig"></a> [kubeconfig](#output\_kubeconfig) | Kubeconfig for the Talos cluster |
+| <a name="output_talos_client_config"></a> [talos\_client\_config](#output\_talos\_client\_config) | Talos client configuration in HCL format |
 <!-- END_TF_DOCS -->
