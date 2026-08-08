@@ -3,7 +3,7 @@
 OpenTofu module to bootstrap a [Talos Linux](https://www.talos.dev/) Kubernetes cluster from a list of pre-provisioned nodes.
 
 ![OpenTofu](https://img.shields.io/badge/opentofu-%3E%3D1.11.0-blue)
-![Talos Provider](https://img.shields.io/badge/talos--provider-0.9.0-purple)
+![Talos Provider](https://img.shields.io/badge/talos--provider-0.11.0-purple)
 
 ## Features
 
@@ -61,8 +61,8 @@ module "talos_cluster" {
   source = "path/to/terraform-talos-cluster"
 
   cluster_name       = "my-cluster"
-  kubernetes_version = "v1.33.3"
-  talos_version      = "v1.10.6"
+  kubernetes_version = "v1.35.4"
+  talos_version      = "v1.12.11"
 
   talos_nodes = {
     cp1 = {
@@ -92,8 +92,8 @@ module "talos_cluster" {
 
   cluster_name       = "ha-cluster"
   cluster_vip        = "10.0.1.5"  # Virtual IP for control plane HA
-  kubernetes_version = "v1.33.3"
-  talos_version      = "v1.10.6"
+  kubernetes_version = "v1.35.4"
+  talos_version      = "v1.12.11"
 
   talos_nodes = {
     cp1 = {
