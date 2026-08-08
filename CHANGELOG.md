@@ -7,6 +7,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.3.1] - 2026-08-08
+
+### Fixed
+
+- `kube_client_config` returned `talos_cluster_kubeconfig.client_configuration` — the **Talos** client configuration that resource takes as a *required input* — rather than `kubernetes_client_configuration`, the read-only Kubernetes one
+  - It was byte-identical to `talos_client_config`: two outputs returning the same value, one of them described as "Kubeconfig in HCL format"
+  - It could not be used for its stated purpose, configuring the `kubernetes` and `helm` providers, because it carried Talos credentials and no API `host`
+  - The documented contract is unchanged; only the implementation now matches it
+
 ## [0.3.0] - 2026-08-08
 
 ### Added
